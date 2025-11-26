@@ -14,6 +14,8 @@ menuString: .asciiz "Would you like to play Blackjack?\nPress (1) for yes\nPress
 exitString: .asciiz "\nGG! Let's play again later!"
 errorString: .asciiz "Error, try again"
 cardString: .asciiz "Your card is the: "
+winString: .asciiz "You win!"
+loseString: .asciiz "You lose!"
 
 ofString: .asciiz " of "
 diamondString: .asciiz "Diamonds"
@@ -26,7 +28,7 @@ kingString: .asciiz "King"
 aceString: .asciiz "Ace"
 
 currentVal: .asciiz "Your current value is: "
-againString: .asciiz "hit again is in development"
+againString: .asciiz "Would you like to hit another card?\nPress (1) for yes\nPress (2) for no\n"
 
 newLine: .asciiz "\n"
 commaSpace: .asciiz ", "
@@ -119,10 +121,28 @@ cardCounter:
 	printInt($s1)
 	printString(newLine)
 	
+	bgt $s1, 21, youLose
+	
 	bge $s2, 2, hitAgainQ
 
 hitAgainQ:
 	printString(againString)
+	getInt
+	move $s0, $v0
+	beq $s0, 1, getRandomCard
+	beq $s0, 2, results
+	b error
+
+results:
+	bgt $s1, 21, youLose
+	ble $s1, 21, youWin
+
+youWin:
+	printString(winString)
+	j exit
+
+youLose:
+	printString(loseString)
 	j exit
 
 error:
