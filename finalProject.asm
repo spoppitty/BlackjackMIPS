@@ -33,7 +33,12 @@ againString: .asciiz "Would you like to hit another card?\nPress (1) for yes\nPr
 newLine: .asciiz "\n"
 commaSpace: .asciiz ", "
 
+bmdA: .word 0x10008000	# bitmap display address
+bmdW: .word 512		# bitmap display width
+bmdH: .word 256		# bitmap display height
+
 .text
+.globl main
 main:
 	printString(menuString)
 	getInt
