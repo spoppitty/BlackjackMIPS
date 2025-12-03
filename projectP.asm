@@ -19,6 +19,20 @@ currentString: .asciiz "\nYou currently have: "
 coinString: .asciiz " coins"
 betString: .asciiz "\nHow much would you like to bet? "
 
+# William
+	# feel free to delete/change, this is mainly for testing to see if the counter works
+displayString: .asciiz "Player has: "
+newLine: .asciiz "\n"
+displayStringDealer: .asciiz "Dealer has: "
+promptHitOrStand: .asciiz "Would you like to hit or stand?\n1.)Hit\n2.)Stand\n"
+playerHits: .asciiz "Player Hits\nPlayer Count: "
+dealerHits: .asciiz "Dealer Hits\nDealer Count: "
+playerLoses: .asciiz "Player busts! Better luck next time!\n"
+dealerLoses: .asciiz "Dealer busts! You win!\n"
+playerWinner: .asciiz "You win this hand!\n"
+dealerWinner: .asciiz "You lose this hand!\n"
+	
+
 .text
 .globl main
 main:
@@ -97,7 +111,120 @@ setCardGhost:
 	sw $t5, 2140($t0)
 	sw $t5, 2144($t0)
 	sw $t5, 2148($t0)
+	# j exit
+	
+# William
+	# give a card after displaying blank cards.
+	# after, display the card that was given
+	# then, give a 2nd card
+	# display that second card after
+	# feel free to change/delete/add anything
+playerCards:
+	getRandomCard
+	add $s2, $s2, $s0 # add to player total - used to compare to dealer's total count
+	
+	
+	# display the card after the first hand
+		# printInt($s0)
+		# printSuit($s1)
+	
+	# second hand
+	getRandomCard
+	add $s2, $s2, $s0
+	
+	bgt $s2, 21, playerLose # over 21, player busts
+	beq $s2, 21, playerWins
+	
+	printString(displayString)
+	printInt($s2)
+	printString(newLine)
+	
+dealerCards:
+	# --- dealer only draws one card in the beginning ---
+	getRandomCard
+	add $s3, $s3, $s0 # add to dealers total
+	
+	# display the card after the first hand
+		# printInt($s0)
+		# printSuit($s1)
+	
+	printString(displayStringDealer)
+	printInt($s3)
+	printString(newLine)
+	
+	j promptSelection
+	
+playerCardSingular:
+	getRandomCard
+	add $s2, $s2, $s0
+	
+	# display the card
+	printString(playerHits)
+	printInt($s2)
+	printString(newLine)
+	
+	bgt $s2, 21, playerLose # over 21, player busts
+	
+	j promptSelection
+	
+dealerCardSingular:
+	getRandomCard
+	add $s3, $s3, $s0
+	
+	# display the card
+	printString(dealerHits)
+	printInt($s3)
+	printString(newLine)
+	
+	j dealerCheck
+	
+dealerCheck:
+	# if the dealer total is less than 17, keep hitting until over 17
+	ble $s3, 17, dealerCardSingular
+	
+	bgt $s3, 21, dealerLose # over 21, dealer busts
+	
+	# if the dealer is 17 or greater, show who wins
+	bge $s3, 17, showResults
+
+	
+promptSelection:
+	printString(promptHitOrStand)
+	getInt
+	move $s0, $v0
+	
+	# check input
+	beq $s0, 1, playerCardSingular # player hits
+	beq $s0, 2, dealerCheck # if player stands, check dealers hand
+	
+showResults:
+	printString(displayString)
+	printInt($s2)
+	printString(newLine)
+	
+	printString(displayStringDealer)
+	printInt($s3)
+	printString(newLine)
+	
+	bgt $s2, $s3, playerWins
+	bgt $s3, $s2, dealerWins
+	
+playerLose:
+	printString(playerLoses)
 	j exit
+		
+dealerLose:
+	printString(dealerLoses)
+	j exit
+		
+playerWins:
+	printString(playerWinner)
+	j exit
+		
+dealerWins:
+	printString(dealerWinner)
+	j exit
+	
 
 exit:
 	printString(exitString)
