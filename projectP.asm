@@ -180,7 +180,7 @@ dealerCardSingular:
 	
 dealerCheck:
 	# if the dealer total is less than 17, keep hitting until over 17
-	ble $s3, 17, dealerCardSingular
+	blt $s3, 17, dealerCardSingular
 	
 	bgt $s3, 21, dealerLose # over 21, dealer busts
 	
