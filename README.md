@@ -39,20 +39,20 @@ How It Works:
    - Special cases: Ace is displayed as "Ace", 11 is "Jack", 12 is "Queen", and 13 is "King"
      
 3. Displaying cards
-   -Each card is in the format:
+   - Each card is in the format:
    "Your card is the: King of Hearts"
    
 4. Score Tracking
    - The player's total is updated after each new card is drawn
      
 5. Player Choices
-   -After the first two cards are drawn, the program gives the user the option:
+   - After the first two cards are drawn, the program gives the user the option:
    Would you like to hit another card?
    Press (1) for yes
    Press (2) for no
    
 6. Results
-   -Bases on the final score, if the player has a score:
+   - Bases on the final score, if the player has a score:
    Score <= 21, then Player Wins
    Score > 21, then Player loses
 
