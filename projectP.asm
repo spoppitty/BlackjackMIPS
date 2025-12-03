@@ -31,6 +31,7 @@ playerLoses: .asciiz "Player busts! Better luck next time!\n"
 dealerLoses: .asciiz "Dealer busts! You win!\n"
 playerWinner: .asciiz "You win this hand!\n"
 dealerWinner: .asciiz "You lose this hand!\n"
+pushDrawPrompt: .asciiz "Push! Neither wins!\n"
 	
 
 .text
@@ -206,6 +207,7 @@ showResults:
 	printInt($s3)
 	printString(newLine)
 	
+	beq $s2, $s3, pushDraw
 	bgt $s2, $s3, playerWins
 	bgt $s3, $s2, dealerWins
 	
@@ -223,6 +225,10 @@ playerWins:
 		
 dealerWins:
 	printString(dealerWinner)
+	j exit
+	
+pushDraw:
+	printString(pushDrawPrompt)
 	j exit
 	
 
