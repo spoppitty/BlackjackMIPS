@@ -4,8 +4,6 @@
 
 Authors: Aaronn Mach, Kellan Young, Sarah Liu, William Tu
 
-Creating the Blackjack card game in MIPS
-
 This project recreates the classic Blackjack card game using MIPS assembly, implementing the use of game logic, and bitmap display.
 
 Overview:
