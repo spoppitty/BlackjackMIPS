@@ -1,4 +1,7 @@
-# restructure
+# Group 2: Aaronn Mach, Kellan Young, Sarah Liu, William Tu
+# CS2640.02
+# 12/7/2025
+# MIPS Assembly Final Project
 
 .include "macroP.asm"
 
@@ -50,13 +53,13 @@ main:
 
 	mul $t3, $t1, $t2     	# t3 = total unit counter
 
-	li $t4, 0x00064227   	# $t4 = board color (dark green)
+	li $t4, 0x001C7A3C   	# $t4 = board color (dark green)
 	
 	# initialize coin count
 	li $s7, 100
 
 # fill/reset board with dark green
-# Counter($t3) always needs to be reset before filling
+# $t0 and $t3 always needs to be reset before filling
 fill_board:
 	beq $t3, $zero, menuSelection  # if no pixels left, finish
 
@@ -74,10 +77,23 @@ menuSelection:
 	move $s0, $v0
 	
 	# check input
-	beq $s0, 1, betSelection
+	beq $s0, 1, passOutCards
 	beq $s0, 2, exit
 	printString(errorString)	# if input is not 1 or 2, try again
 	j menuSelection
+
+# pass out cards turn over before player makes bets
+passOutCards:
+	# pass out dealer's first card
+	drawRect(4, 8, 13, 19, 0x00FFFFFF)
+	drawRect(5, 9, 11, 17, 0x00FFA3B1)
+	
+	# pass out player's 2 cards
+	drawRect(4, 37, 13, 19, 0x00FFFFFF)
+	drawRect(5, 38, 11, 17, 0x00FFA3B1)
+	# 2nd card
+	drawRect(19, 37, 13, 19, 0x00FFFFFF)
+	drawRect(20, 38, 11, 17, 0x00FFA3B1)
 
 betSelection:
 	# prompt bet amount
@@ -91,28 +107,14 @@ betSelection:
 	move $s6, $v0			# bet amount is in $s6
 	
 	# check input
-	bgez $s6, setCardGhost
-	printString(errorString)	# if input is negative, try again
+	bgt $s6, $s7, invalidCoins	# if bet amount is greater than current amount
+	bgez $s6, playerCards		# if bet amount is valid
+	
+	# if bet amount is negative or invalid
+	invalidCoins:
+		printString(errorString)
+	
 	j betSelection
-
-setCardGhost:
-	# cards are 13 x 19 pixels
-	li $t5, 0x00FFFFFF	# $t5 = white
-	li $t6, 0x00FFA0A0	# $t6 = pink
-	
-	# reset these counters for filling
-	la $t0, bmdA
-	lw $t0, 0($t0)       	# $t0 = BASE
-	mul $t3, $t1, $t2     	# t3 = total unit counter
-	
-	sw $t5, 2124($t0)
-	sw $t5, 2128($t0)
-	sw $t5, 2132($t0)
-	sw $t5, 2136($t0)
-	sw $t5, 2140($t0)
-	sw $t5, 2144($t0)
-	sw $t5, 2148($t0)
-	# j exit
 	
 # William
 	# give a card after displaying blank cards.
@@ -124,14 +126,17 @@ playerCards:
 	getRandomCard
 	add $s2, $s2, $s0 # add to player total - used to compare to dealer's total count
 	
-	
 	# display the card after the first hand
-		# printInt($s0)
-		# printSuit($s1)
+	drawRect(4, 37, 13, 19, 0x00FFFFFF)
+	drawCardFace($s0, $s1, 4, 37)
 	
 	# second hand
 	getRandomCard
 	add $s2, $s2, $s0
+	
+	# display 2nd card
+	drawRect(19, 37, 13, 19, 0x00FFFFFF)
+	drawCardFace($s0, $s1, 19, 37)
 	
 	bgt $s2, 21, playerLose # over 21, player busts
 	beq $s2, 21, playerWins
@@ -146,8 +151,8 @@ dealerCards:
 	add $s3, $s3, $s0 # add to dealers total
 	
 	# display the card after the first hand
-		# printInt($s0)
-		# printSuit($s1)
+	drawRect(4, 8, 13, 19, 0x00FFFFFF)
+	drawCardFace($s0, $s1, 4, 8)
 	
 	printString(displayStringDealer)
 	printInt($s3)
