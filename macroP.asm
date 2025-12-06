@@ -44,6 +44,22 @@
 	addi $s1, $s1, 1	# add 1 because range was 0-3
 	.end_macro	
 
+.macro resetBoard(%boardColor)
+	# Base address of bitmap display
+	li $t0, 0x10040000
+	li $t3, 4096		# pixels
+	li $t4, %boardColor   	# $t4 = board color (dark green)
+	
+	fillBoard_loop:
+		beq $t3, 0, finishResetBoard
+		sw $t4, 0($t0)       # store color at current address
+		addi $t0, $t0, 4       # move to next unit 
+		addi $t3, $t3, -1      # decrement unit counter
+		j fillBoard_loop
+	
+	finishResetBoard:
+		.end_macro
+
 # draw a rectangle on the bitmap display given the position by row and column, width, height, and color, all as immediate values
 .macro drawRect(%col, %row, %w, %h, %color)
 	# Base address of bitmap display

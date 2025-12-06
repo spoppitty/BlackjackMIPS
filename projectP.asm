@@ -17,6 +17,8 @@ bmdH: .word 64		# bitmap display height / 8
 menuString: .asciiz "\nWould you like to play Blackjack?\nPress (1) for yes\nPress (2) to exit\n"
 exitString: .asciiz "\nGG! Let's play again later!"
 errorString: .asciiz "\nError, try again"
+askAgainString: .asciiz "\nWould you like to play again?\nPress (1) for yes\nPress (2) to exit\n"
+noMoneyString: .asciiz "\nYou have no more money!"
 
 currentString: .asciiz "\nYou currently have: "
 coinString: .asciiz " coins"
@@ -123,6 +125,8 @@ betSelection:
 	# display that second card after
 	# feel free to change/delete/add anything
 playerCards:
+	# player has 2 cards
+	li $s4, 2
 	getRandomCard
 	add $s2, $s2, $s0 # add to player total - used to compare to dealer's total count
 	
@@ -147,6 +151,7 @@ playerCards:
 	
 dealerCards:
 	# --- dealer only draws one card in the beginning ---
+	li $s5, 1
 	getRandomCard
 	add $s3, $s3, $s0 # add to dealers total
 	
@@ -161,6 +166,7 @@ dealerCards:
 	j promptSelection
 	
 playerCardSingular:
+	addi $s4, $s4, 1
 	getRandomCard
 	add $s2, $s2, $s0
 	
@@ -169,11 +175,26 @@ playerCardSingular:
 	printInt($s2)
 	printString(newLine)
 	
-	bgt $s2, 21, playerLose # over 21, player busts
+	beq $s4, 3, thirdPlayerCard
+	bge $s4, 4, fourthPlayerCard
 	
-	j promptSelection
+	thirdPlayerCard:
+		drawRect(34, 37, 13, 19, 0x00FFFFFF)
+		drawCardFace($s0, $s1, 34, 37)
+		j continuePlayerSingular
+	
+	fourthPlayerCard:
+		drawRect(49, 37, 13, 19, 0x00FFFFFF)
+		drawCardFace($s0, $s1, 49, 37)
+		j continuePlayerSingular
+		
+	continuePlayerSingular:
+		bgt $s2, 21, playerLose # over 21, player busts
+	
+		j promptSelection
 	
 dealerCardSingular:
+	addi $s5, $s5, 1
 	getRandomCard
 	add $s3, $s3, $s0
 	
@@ -182,7 +203,24 @@ dealerCardSingular:
 	printInt($s3)
 	printString(newLine)
 	
-	j dealerCheck
+	beq $s5, 2, secondDealerCard
+	beq $s5, 3, thirdDealerCard
+	bge $s5, 4, fourthDealerCard
+	
+	secondDealerCard:
+		drawRect(19, 8, 13, 19, 0x00FFFFFF)
+		drawCardFace($s0, $s1, 19, 8)
+		j dealerCheck
+	
+	thirdDealerCard:
+		drawRect(34, 8, 13, 19, 0x00FFFFFF)
+		drawCardFace($s0, $s1, 34, 8)
+		j dealerCheck
+	
+	fourthDealerCard:
+		drawRect(49, 8, 13, 19, 0x00FFFFFF)
+		drawCardFace($s0, $s1, 49, 8)
+		j dealerCheck
 	
 dealerCheck:
 	# if the dealer total is less than 17, keep hitting until over 17
@@ -202,6 +240,8 @@ promptSelection:
 	# check input
 	beq $s0, 1, playerCardSingular # player hits
 	beq $s0, 2, dealerCheck # if player stands, check dealers hand
+	printString(errorString)	# if input is not 1 or 2, try again
+	j promptSelection
 	
 showResults:
 	printString(displayString)
@@ -217,25 +257,63 @@ showResults:
 	bgt $s3, $s2, dealerWins
 	
 playerLose:
+	resetBoard(0x009E1C1C)
+	sub $s7, $s7, $s6
 	printString(playerLoses)
-	j exit
+	j askAgain
 		
 dealerLose:
+	resetBoard(0x0022B14C)
+	add $s7, $s7, $s6
 	printString(dealerLoses)
-	j exit
+	j askAgain
 		
 playerWins:
+	resetBoard(0x0022B14C)
+	add $s7, $s7, $s6
 	printString(playerWinner)
-	j exit
+	j askAgain
 		
 dealerWins:
+	resetBoard(0x009E1C1C)
+	sub $s7, $s7, $s6
 	printString(dealerWinner)
-	j exit
+	j askAgain
 	
 pushDraw:
+	resetBoard(0x00B4B4B4)
 	printString(pushDrawPrompt)
-	j exit
+	j askAgain
 	
+noMoreCoins:
+	printString(noMoneyString)
+	j exit
+
+# ask to play again
+askAgain:
+	# check if player has money before asking to play again
+	beq $s7, 0, noMoreCoins
+	
+	printString(askAgainString)
+	getInt
+	move $s0, $v0
+	
+	# check input
+	beq $s0, 1, resetRegisters
+	beq $s0, 2, exit
+	printString(errorString)	# if input is not 1 or 2, try again
+	j askAgain
+
+# prepare for another game
+resetRegisters:
+	# reset player and dealer counters, and bet amount
+	li $s2, 0
+	li $s3, 0
+	li $s4, 0
+	li $s5, 0
+	li $s6, 0
+	resetBoard(0x001C7A3C)
+	j passOutCards
 
 exit:
 	printString(exitString)
