@@ -190,6 +190,7 @@ playerCardSingular:
 		
 	continuePlayerSingular:
 		bgt $s2, 21, playerLose # over 21, player busts
+		beq $s2, 21, playerWins # 21, player wins
 	
 		j promptSelection
 	
