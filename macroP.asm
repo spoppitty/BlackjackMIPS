@@ -42,6 +42,14 @@
 	getRandom(4)		# get suit value
 	move $s1, $a0		# move value to $s1
 	addi $s1, $s1, 1	# add 1 because range was 0-3
+	.end_macro
+
+# create a delay for usability in the bitmap display
+# give value as milliseconds
+.macro delay(%milli)
+	li $v0, 32
+	li $a0, %milli
+	syscall
 	.end_macro	
 
 .macro resetBoard(%boardColor)

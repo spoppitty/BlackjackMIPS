@@ -84,13 +84,17 @@ menuSelection:
 # pass out cards turned over before player makes bets
 passOutCards:
 	# pass out dealer's first card
+	delay(500)
 	drawRect(4, 8, 13, 19, 0x00FFFFFF)
 	drawRect(5, 9, 11, 17, 0x00FFA3B1)
 	
 	# pass out player's 2 cards
+	delay(500)
 	drawRect(4, 37, 13, 19, 0x00FFFFFF)
 	drawRect(5, 38, 11, 17, 0x00FFA3B1)
+	
 	# 2nd card
+	delay(500)
 	drawRect(19, 37, 13, 19, 0x00FFFFFF)
 	drawRect(20, 38, 11, 17, 0x00FFA3B1)
 
@@ -121,12 +125,17 @@ betSelection:
 playerCards:
 	# player has 2 cards
 	li $s4, 2
+	
+	delay(500)
+	
 	getRandomCard
 	add $s2, $s2, $s0 # add to player total - used to compare to dealer's total count
 	
 	# display the card after the first hand
 	drawRect(4, 37, 13, 19, 0x00FFFFFF)
 	drawCardFace($s0, $s1, 4, 37)
+	
+	delay(500)
 	
 	# second hand
 	getRandomCard
@@ -147,6 +156,9 @@ playerCards:
 dealerCards:
 	# --- dealer only draws one card in the beginning ---
 	li $s5, 1
+	
+	delay(500)
+	
 	getRandomCard
 	add $s3, $s3, $s0 # add to dealers total
 	
@@ -163,6 +175,9 @@ dealerCards:
 # call 1 card for the player and display it	
 playerCardSingular:
 	addi $s4, $s4, 1
+	
+	delay(500)
+	
 	getRandomCard
 	add $s2, $s2, $s0
 	
@@ -192,7 +207,11 @@ playerCardSingular:
 
 # call 1 card for the dealer and display it	
 dealerCardSingular:
+	# add to dealer's card count
 	addi $s5, $s5, 1
+	
+	delay(500)
+	
 	getRandomCard
 	add $s3, $s3, $s0
 	
@@ -247,7 +266,7 @@ showResults:
 	printString(displayString)
 	printInt($s2)
 	printString(newLine)
-	
+
 	printString(displayStringDealer)
 	printInt($s3)
 	printString(newLine)
@@ -257,30 +276,35 @@ showResults:
 	bgt $s3, $s2, dealerWins
 	
 playerLose:
+	delay(500)
 	resetBoard(0x009E1C1C)		# fill the board red
 	sub $s7, $s7, $s6		# player loses their bet
 	printString(playerLoses)
 	j askAgain
 		
 dealerLose:
+	delay(500)
 	resetBoard(0x0022B14C)		# fill the board green
 	add $s7, $s7, $s6		# player wins their bet
 	printString(dealerLoses)
 	j askAgain
 		
 playerWins:
+	delay(500)
 	resetBoard(0x0022B14C)		# fill the board green
 	add $s7, $s7, $s6		# player wins their bet
 	printString(playerWinner)
 	j askAgain
 		
 dealerWins:
+	delay(500)
 	resetBoard(0x009E1C1C)		# fill the board red
 	sub $s7, $s7, $s6		# player loses their bet
 	printString(dealerWinner)
 	j askAgain
 
 pushDraw:
+	delay(500)
 	resetBoard(0x00B4B4B4)		# fill the board grey
 	printString(pushDrawPrompt)	# player doesn't win or lose bet
 	j askAgain
@@ -312,6 +336,7 @@ resetRegisters:
 	li $s4, 0
 	li $s5, 0
 	li $s6, 0
+	
 	resetBoard(0x001C7A3C)
 	j passOutCards
 
