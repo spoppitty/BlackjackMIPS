@@ -124,8 +124,8 @@
 	ifValue10:
 		addi $t0, $t0, 4
 	
+	# color of suit
 	decideColor:
-		# color of suit
 		beq %suit, 1, redColor
 		beq %suit, 3, redColor
 		beq %suit, 2, blackColor
@@ -410,7 +410,8 @@
 			sw   $t3, 2824($t0)	# fifth row
 			sw   $t3, 2832($t0)
 			j drawSuit
-		
+	
+	# draw the suit	
 	drawSuit:
 		beq %suit, 0, drawBlank
 		beq %suit, 1, drawDiamond

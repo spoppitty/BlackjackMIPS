@@ -47,7 +47,7 @@ How It Works:
      How much would you like to bet?
      
 2. Random Card Generation
-   - uses macros to generate random card value (1-13) and random suit (1-4))
+   - uses macros to generate random card value (1-13) and random suit (1-4)
    - Special cases: Ace is displayed as "Ace", 11 is "Jack", 12 is "Queen", and 13 is "King"
      
 3. Displaying cards
@@ -67,6 +67,18 @@ How It Works:
    Score <= 21, then Player Wins
    Score > 21, then Player loses
 
+How To Play:
+1. Set up Bitmap Display
+   - Set Unit Width and Height in Pixels to 8
+   - Set Display Width and Height in Pixels to 512
+   - Set the base address for display to 0x10040000 (heap)
+   - Connect to MIPS
+
+2. Assemble the file, projectP.asm
+
+3. Enter your inputs in Run I/O and watch the Bitmap Display as the game progresses
+
+4. Have fun!
 
 Conclusion
 This project demonstrates the use of MIPS Assembly to create a functional Blackjack game using system calls, macros, and bitmap graphics.

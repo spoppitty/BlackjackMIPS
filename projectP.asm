@@ -24,8 +24,6 @@ currentString: .asciiz "\nYou currently have: "
 coinString: .asciiz " coins"
 betString: .asciiz "\nHow much would you like to bet? "
 
-# William
-	# feel free to delete/change, this is mainly for testing to see if the counter works
 displayString: .asciiz "Player has: "
 newLine: .asciiz "\n"
 displayStringDealer: .asciiz "Dealer has: "
@@ -38,7 +36,6 @@ playerWinner: .asciiz "You win this hand!\n"
 dealerWinner: .asciiz "You lose this hand!\n"
 pushDrawPrompt: .asciiz "Push! Neither wins!\n"
 	
-
 .text
 .globl main
 main:
@@ -61,7 +58,6 @@ main:
 	li $s7, 100
 
 # fill/reset board with dark green
-# $t0 and $t3 always needs to be reset before filling
 fill_board:
 	beq $t3, $zero, menuSelection  # if no pixels left, finish
 
@@ -70,6 +66,7 @@ fill_board:
 	addi $t3, $t3, -1      # decrement unit counter
 	j fill_board
 
+# menu allows player to play or exit
 menuSelection:
 	# print menu
 	printString(menuString)
@@ -84,7 +81,7 @@ menuSelection:
 	printString(errorString)	# if input is not 1 or 2, try again
 	j menuSelection
 
-# pass out cards turn over before player makes bets
+# pass out cards turned over before player makes bets
 passOutCards:
 	# pass out dealer's first card
 	drawRect(4, 8, 13, 19, 0x00FFFFFF)
@@ -97,6 +94,7 @@ passOutCards:
 	drawRect(19, 37, 13, 19, 0x00FFFFFF)
 	drawRect(20, 38, 11, 17, 0x00FFA3B1)
 
+# allows players to bet their coins
 betSelection:
 	# prompt bet amount
 	printString(currentString)
@@ -118,12 +116,8 @@ betSelection:
 	
 	j betSelection
 	
-# William
-	# give a card after displaying blank cards.
-	# after, display the card that was given
-	# then, give a 2nd card
-	# display that second card after
-	# feel free to change/delete/add anything
+
+# call the player's first 2 cards and display them
 playerCards:
 	# player has 2 cards
 	li $s4, 2
@@ -148,7 +142,8 @@ playerCards:
 	printString(displayString)
 	printInt($s2)
 	printString(newLine)
-	
+
+# call the dealer's first card and display it
 dealerCards:
 	# --- dealer only draws one card in the beginning ---
 	li $s5, 1
@@ -164,7 +159,8 @@ dealerCards:
 	printString(newLine)
 	
 	j promptSelection
-	
+
+# call 1 card for the player and display it	
 playerCardSingular:
 	addi $s4, $s4, 1
 	getRandomCard
@@ -193,7 +189,8 @@ playerCardSingular:
 		beq $s2, 21, playerWins # 21, player wins
 	
 		j promptSelection
-	
+
+# call 1 card for the dealer and display it	
 dealerCardSingular:
 	addi $s5, $s5, 1
 	getRandomCard
@@ -222,7 +219,8 @@ dealerCardSingular:
 		drawRect(49, 8, 13, 19, 0x00FFFFFF)
 		drawCardFace($s0, $s1, 49, 8)
 		j dealerCheck
-	
+
+# check the dealer's hand value
 dealerCheck:
 	# if the dealer total is less than 17, keep hitting until over 17
 	blt $s3, 17, dealerCardSingular
@@ -232,7 +230,7 @@ dealerCheck:
 	# if the dealer is 17 or greater, show who wins
 	bge $s3, 17, showResults
 
-	
+# ask player if they want to continue drawing or stand
 promptSelection:
 	printString(promptHitOrStand)
 	getInt
@@ -243,7 +241,8 @@ promptSelection:
 	beq $s0, 2, dealerCheck # if player stands, check dealers hand
 	printString(errorString)	# if input is not 1 or 2, try again
 	j promptSelection
-	
+
+# display the results, win or lose
 showResults:
 	printString(displayString)
 	printInt($s2)
@@ -258,36 +257,36 @@ showResults:
 	bgt $s3, $s2, dealerWins
 	
 playerLose:
-	resetBoard(0x009E1C1C)
-	sub $s7, $s7, $s6
+	resetBoard(0x009E1C1C)		# fill the board red
+	sub $s7, $s7, $s6		# player loses their bet
 	printString(playerLoses)
 	j askAgain
 		
 dealerLose:
-	resetBoard(0x0022B14C)
-	add $s7, $s7, $s6
+	resetBoard(0x0022B14C)		# fill the board green
+	add $s7, $s7, $s6		# player wins their bet
 	printString(dealerLoses)
 	j askAgain
 		
 playerWins:
-	resetBoard(0x0022B14C)
-	add $s7, $s7, $s6
+	resetBoard(0x0022B14C)		# fill the board green
+	add $s7, $s7, $s6		# player wins their bet
 	printString(playerWinner)
 	j askAgain
 		
 dealerWins:
-	resetBoard(0x009E1C1C)
-	sub $s7, $s7, $s6
+	resetBoard(0x009E1C1C)		# fill the board red
+	sub $s7, $s7, $s6		# player loses their bet
 	printString(dealerWinner)
 	j askAgain
-	
+
 pushDraw:
-	resetBoard(0x00B4B4B4)
-	printString(pushDrawPrompt)
+	resetBoard(0x00B4B4B4)		# fill the board grey
+	printString(pushDrawPrompt)	# player doesn't win or lose bet
 	j askAgain
 	
 noMoreCoins:
-	printString(noMoneyString)
+	printString(noMoneyString)	# if player runs out of money, they can't play
 	j exit
 
 # ask to play again
@@ -305,7 +304,7 @@ askAgain:
 	printString(errorString)	# if input is not 1 or 2, try again
 	j askAgain
 
-# prepare for another game
+# prepare registers for another game
 resetRegisters:
 	# reset player and dealer counters, and bet amount
 	li $s2, 0
@@ -316,6 +315,7 @@ resetRegisters:
 	resetBoard(0x001C7A3C)
 	j passOutCards
 
+# exit program and message
 exit:
 	printString(exitString)
 	exitProgram
